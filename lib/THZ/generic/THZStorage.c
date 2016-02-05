@@ -3,7 +3,7 @@
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant 
+ * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
@@ -126,7 +126,11 @@ void THZStorage_(free)(THZStorage *storage)
     }
   }
 }
-
+THZStorage* THZStorage_(newWithFloatData)(float *data, long size)
+{
+  return THZStorage_(newWithDataAndAllocator)((real *)data, size,
+                                             &THDefaultAllocator, NULL);
+}
 THZStorage* THZStorage_(newWithData)(real *data, long size)
 {
   return THZStorage_(newWithDataAndAllocator)(data, size,

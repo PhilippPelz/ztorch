@@ -58,6 +58,7 @@ THZRealStorage& THZRealStorage_newWithSize3(real, real, real);
 THZRealStorage& THZRealStorage_newWithSize4(real, real, real, real);
 THZRealStorage& THZRealStorage_newWithMapping(const char *filename, long size, int shared);
 THZRealStorage& THZRealStorage_newWithData(real *data, long size);
+THZRealStorage& THZRealStorage_newWithFloatData(float *data, long size);
 THZRealStorage& THZRealStorage_newWithAllocator(long size, THAllocator* allocator, void *allocatorContext);
 THZRealStorage& THZRealStorage_newWithDataAndAllocator(real* data, long size, THAllocator* allocator, void *allocatorContext);
 

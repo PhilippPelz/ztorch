@@ -109,6 +109,7 @@ for _,Real in ipairs{'Float', 'Double'} do
    local THZStorage = 'THZ' .. Real .. 'Storage'
    local THZStorage_free = C[THZStorage .. '_free']
    local THZStorage_retain = C[THZStorage .. '_retain']
+   local THZStorage_newWithFloatData = C[THZStorage .. '_newWithFloatData']
 
    local ZTensor = {}
 
@@ -177,6 +178,31 @@ for _,Real in ipairs{'Float', 'Double'} do
       call =
          function(tensor)
             local self = THZTensor_newWithTensor(tensor)
+            ffi.gc(self, THZTensor_free)
+            return self
+         end
+   }
+
+   ZTensor.__new = argcheck{
+      {name='tensor', type='torch.FloatTensor'},
+      nonamed=true,
+      overload = ZTensor.__new,
+      call =
+         function(tensor)
+            local storage = THZStorage_newWithFloatData(tensor:data(),tensor:nElement()/2)
+            size = torch.LongStorage({1,1,1,1})
+            stride = torch.LongStorage({1,1,1,1})
+            -- print(tensor:stride())
+            for i = 1, tensor:dim() - 1 do
+              size[i] = tensor:size(i)
+            end
+            local j = 1
+            stride[tensor:dim() - 1] = 1
+            for i = tensor:dim() - 2,1,-1 do
+              stride[i] = stride[i+1] * tensor:size(i+1)
+            end
+            -- print(size,stride)
+            local self = THZTensor_newWithStorage(storage, 1, size:cdata(), stride:cdata())
             ffi.gc(self, THZTensor_free)
             return self
          end
@@ -1655,6 +1681,10 @@ for _,Real in ipairs{'Float', 'Double'} do
       file:writeObject(self:stride())
       file:writeLong(self:storageOffset())
       file:writeObject(self:storage())
+   end
+   
+   function ZTensor:type(s)
+      return torch.type(s)
    end
 
    function ZTensor:__read(file, version)

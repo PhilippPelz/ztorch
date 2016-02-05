@@ -21,6 +21,7 @@ for _,Real in ipairs{'Float', 'Double'} do
    local THZStorage_newWithSize = C[THZStorage .. '_newWithSize']
    local THZStorage_newWithAllocator = C[THZStorage .. '_newWithAllocator']
    local THZStorage_newWithMapping = C[THZStorage .. '_newWithMapping']
+   local THZStorage_newWithData = C[THZStorage .. '_newWithData']
    local THZStorage_free = C[THZStorage .. '_free']
    local THZStorage_fill = C[THZStorage .. '_fill']
    local THZStorage_resize = C[THZStorage .. '_resize']
@@ -92,6 +93,17 @@ for _,Real in ipairs{'Float', 'Double'} do
    }
 
    ZStorage.new = ZStorage.__new
+   ZStorage.newWithData = argcheck{
+      {name="data", type="cdata"},
+      {name="size", type="number", default=0},
+      nonamed = true,
+      call =
+         function(data, size)
+            local self = THZStorage_newWithData(size, data)
+            ffi.gc(self, THZStorage_free)
+            return self
+         end
+   }
 
    ZStorage.fill = argcheck{
       {name="self", type=typename},

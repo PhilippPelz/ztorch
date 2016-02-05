@@ -3,7 +3,7 @@
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant 
+ * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
@@ -104,8 +104,10 @@ THZTensor *THZTensor_(newWithTensor)(THZTensor *tensor)
 THZTensor *THZTensor_(newWithStorage)(THZStorage *storage, long storageOffset, THLongStorage *size, THLongStorage *stride)
 {
   THZTensor *self = THAlloc(sizeof(THZTensor));
-  if(size && stride)
+  if(size && stride){
+    // printf("%d %d",size->size , stride->size);
     THArgCheck(size->size == stride->size, 4, "inconsistent size");
+  }
 
   THZTensor_(rawInit)(self);
   THZTensor_(rawSet)(self,
