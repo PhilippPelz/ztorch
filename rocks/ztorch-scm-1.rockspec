@@ -2,14 +2,14 @@ package = "ztorch"
 version = "scm-1"
 
 source = {
-   url = "git://github.com/facebook/ztorch.git",
+   url = "git://github.com/PhilippPelz/ztorch.git",
 }
 
 description = {
    summary = "Torch7 Complex number support",
    detailed = [[
    ]],
-   homepage = "https://github.com/facebook/ztorch",
+   homepage = "https://github.com/PhilippPelz/ztorch",
    license = "BSD"
 }
 

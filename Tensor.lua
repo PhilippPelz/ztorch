@@ -548,7 +548,9 @@ for _,Real in ipairs{'Float', 'Double'} do
       {name="src", type=typename},
       overload=ZTensor.re,
       call = function(dst, src)
+
          THZTensor_zre(dst, src)
+         
          return dst
       end
    }
@@ -1682,7 +1684,7 @@ for _,Real in ipairs{'Float', 'Double'} do
       file:writeLong(self:storageOffset())
       file:writeObject(self:storage())
    end
-   
+
    function ZTensor:type(s)
       return torch.type(s)
    end
