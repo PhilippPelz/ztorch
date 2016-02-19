@@ -550,7 +550,7 @@ for _,Real in ipairs{'Float', 'Double'} do
       call = function(dst, src)
 
          THZTensor_zre(dst, src)
-         
+
          return dst
       end
    }
@@ -1747,6 +1747,8 @@ for _,Real in ipairs{'Float', 'Double'} do
             error('empty tensor')
          end
       elseif type(k) == 'table' then
+          print('ndim =' .. self.__nDimension)
+          print('k =' ..#k)
          assert(#k <= self.__nDimension, 'too many indices provided')
          local t = self
          for _,idx in ipairs(k) do
