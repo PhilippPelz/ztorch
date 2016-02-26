@@ -1734,31 +1734,87 @@ for _,Real in ipairs{'Float', 'Double'} do
       end
    end
 
-   function ZTensor:__index(k)
-      assert(self, 'Need to call as method')
-      if type(k) == 'number' then
-         if self.__nDimension == 1 then
-            assert(k > 0 and k <= tonumber(self.__size[0]), 'out of range')
-            return self.__storage.__data[(k-1)*self.__stride[0]+self.__storageOffset]
-         elseif self.__nDimension > 1 then
-            assert(k > 0 and k <= tonumber(self.__size[0]), 'out of range')
-            return self:select(1, k)
-         else
-            error('empty tensor')
+  --  function ZTensor:__index(k)
+  --     assert(self, 'Need to call as method')
+  --     if type(k) == 'number' then
+  --        if self.__nDimension == 1 then
+  --           assert(k > 0 and k <= tonumber(self.__size[0]), 'out of range')
+  --           return self.__storage.__data[(k-1)*self.__stride[0]+self.__storageOffset]
+  --        elseif self.__nDimension > 1 then
+  --           assert(k > 0 and k <= tonumber(self.__size[0]), 'out of range')
+  --           return self:select(1, k)
+  --        else
+  --           error('empty tensor')
+  --        end
+  --     elseif type(k) == 'table' then
+  --         print('ndim =' .. self.__nDimension)
+  --         print('k =' ..#k)
+  --        assert(#k <= self.__nDimension, 'too many indices provided')
+  --        local t = self
+  --        for _,idx in ipairs(k) do
+  --           t = t[idx]
+  --        end
+  --        return t
+  --     else
+  --        return rawget(ZTensor, k)
+  --     end
+  --  end
+
+   ZTensor.__index = argcheck{
+      nonamed=true,
+      {name="self", type=typename},
+      {name="ind", type='table'},
+      call =
+         function(self, ind)
+           local cdim = 1
+           -- print('in __index 2')
+           local ret = ZTensor.new(self)
+           for _, v in ipairs(ind) do
+             if type(v) == 'number' then
+               -- somethig
+               ret:select(ret,cdim,v)
+             elseif type(v) == 'table' then
+               local start = (v[1] or 1)
+               local ends = (v[2] or self:size(cdim))
+               if ends < 0 then
+                 ends = self:size(cdim) + ends + 1
+               end
+               local size = ends - start + 1
+               ret:narrow(ret,cdim,start,size)
+              --  print('__index')
+              --  pprint(ret)
+               cdim = cdim + 1
+             end
+           end
+          --  print('__index')
+          --  pprint(ret)
+           return ret
          end
-      elseif type(k) == 'table' then
-          print('ndim =' .. self.__nDimension)
-          print('k =' ..#k)
-         assert(#k <= self.__nDimension, 'too many indices provided')
-         local t = self
-         for _,idx in ipairs(k) do
-            t = t[idx]
+   }
+   ZTensor.__index = argcheck{
+      nonamed=true,
+      {name="self", type=typename},
+      {name="ind", type='number'},
+      overload = ZTensor.__index,
+      call =
+         function(self, ind)
+           -- print('in __index 0')
+           local ret = ZTensor.new(self)
+           -- print('in __index 1')
+           -- pprint(ret)
+           return ret:select(ret,1,ind)
          end
-         return t
-      else
-         return rawget(ZTensor, k)
-      end
-   end
+   }
+   ZTensor.__index = argcheck{
+      nonamed=true,
+      {name="self", type=typename},
+      {name="s", type='string'},
+      overload = ZTensor.__index,
+      call =
+         function(self, s)
+           return rawget(ZTensor, s)
+         end
+   }
 
    function ZTensor:__pairs()
       return pairs(ZTensor)
@@ -1991,7 +2047,103 @@ for _,Real in ipairs{'Float', 'Double'} do
             return src
          end
    }
+   ZTensor.fftshift = argcheck{
+      nonamed=true,
+      {name="dst", type=typename},
+      {name="src1", type=typename, opt=true},
+      call =
+         function(dst, src1)
+           if src1 then
+             dst:copy(src1)
+           end
+           local ndim = dst:dim()
 
+           local t = torch.getdefaulttensortype()
+           torch.setdefaulttensortype('torch.FloatTensor')
+           local axes = torch.linspace(1,ndim,ndim)
+           torch.setdefaulttensortype(t)
+           for _, k in pairs(axes:totable()) do
+             local n = dst:size(k)
+             local p2 = math.floor((n+1)/2)
+
+             local half1 = {p2+1,n}
+             local half2 = {1,p2}
+         --    pprint(half1)
+         --    pprint(half2)
+
+             local indextable = {{},{}}
+         --    pprint(indextable)
+             for i=1,ndim do
+         --      print(k .. '_' .. i)
+               if i ~= k then
+                 indextable[1][i] = half1
+                 indextable[2][i] = half2
+         --        pprint(indextable)
+               else
+                 indextable[1][i] = {}
+                 indextable[2][i] = {}
+         --        pprint(indextable)
+               end
+             end
+         --    pprint(indextable[1])
+            --  pprint(indextable)
+             local tmp = dst[indextable[1]]:clone()
+         --    pprint(tmp)
+         --    pprint(dst)
+             dst[indextable[1]]:copy(dst[indextable[2]])
+             dst[indextable[2]]:copy(tmp)
+           end
+           return dst
+         end
+   }
+   ZTensor.ifftshift = argcheck{
+      nonamed=true,
+      {name="dst", type=typename},
+      {name="src1", type=typename, opt=true},
+      call =
+         function(dst, src1)
+           if src1 then
+             dst:copy(src1)
+           end
+           local ndim = dst:dim()
+           local t = torch.getdefaulttensortype()
+           torch.setdefaulttensortype('torch.FloatTensor')
+           local axes = torch.linspace(1,ndim,ndim)
+           torch.setdefaulttensortype(t)
+           for _, k in pairs(axes:totable()) do
+             local n = dst:size(k)
+             local p2 = math.floor(n-(n+1)/2)
+
+             local half1 = {p2+1,n}
+             local half2 = {1,p2}
+         --    pprint(half1)
+         --    pprint(half2)
+
+             local indextable = {{},{}}
+         --    pprint(indextable)
+             for i=1,ndim do
+         --      print(k .. '_' .. i)
+               if i ~= k then
+                 indextable[1][i] = half1
+                 indextable[2][i] = half2
+         --        pprint(indextable)
+               else
+                 indextable[1][i] = {}
+                 indextable[2][i] = {}
+         --        pprint(indextable)
+               end
+             end
+         --    pprint(indextable[1])
+         --    pprint(indextable[2])
+             local tmp = dst[indextable[1]]:clone()
+            --  pprint(tmp)
+            --  pprint(dst)
+             dst[indextable[1]]:copy(dst[indextable[2]])
+             dst[indextable[2]]:copy(tmp)
+           end
+           return dst
+         end
+   }
    ---------------------------------------------------------------------------------------
    for _,func in pairs{'expand', 'expandAs', 'view', 'viewAs', 'repeatTensor'} do
       ZTensor[func] = torch[func]
