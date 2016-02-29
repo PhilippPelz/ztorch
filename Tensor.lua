@@ -111,6 +111,9 @@ for _,Real in ipairs{'Float', 'Double'} do
    local THZStorage_retain = C[THZStorage .. '_retain']
    local THZStorage_newWithFloatData = C[THZStorage .. '_newWithFloatData']
 
+   local THZTensor_newFloat = C[THZTensor .. '_newFloat']
+   local THZTensor_newDouble = C[THZTensor .. '_newDouble']
+
    local ZTensor = {}
 
    ZTensor.__new = argcheck{
@@ -178,6 +181,34 @@ for _,Real in ipairs{'Float', 'Double'} do
       call =
          function(tensor)
             local self = THZTensor_newWithTensor(tensor)
+            ffi.gc(self, THZTensor_free)
+            return self
+         end
+   }
+
+   ZTensor.__new = argcheck{
+      {name='real', type='torch.FloatTensor'},
+      {name='imag', type='torch.FloatTensor'},
+      nonamed=true,
+      overload = ZTensor.__new,
+      call =
+         function(real,imag)
+            local self = ZTensor.__new(real:size())
+            THZTensor_newFloat(self,real:cdata(),imag:cdata())
+            ffi.gc(self, THZTensor_free)
+            return self
+         end
+   }
+
+   ZTensor.__new = argcheck{
+      {name='real', type='torch.DoubleTensor'},
+      {name='imag', type='torch.DoubleTensor'},
+      nonamed=true,
+      overload = ZTensor.__new,
+      call =
+         function(real,imag)
+            local self = ZTensor.__new(real:size())
+            THZTensor_newDouble(self,real:cdata(),imag:cdata())
             ffi.gc(self, THZTensor_free)
             return self
          end
