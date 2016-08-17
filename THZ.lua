@@ -387,11 +387,6 @@ void THZRealTensor_gesvd2(THZRealTensor *ru_, THZRealTensor *rs_, THZRealTensor 
 void THZRealTensor_getri(THZRealTensor *ra_, THZRealTensor *a);
 void THZRealTensor_potri(THZRealTensor *ra_, THZRealTensor *a);
 void THZRealTensor_potrf(THZRealTensor *ra_, THZRealTensor *a);
-
-void THZRealTensor_newDouble(THZRealTensor *r_, THDoubleTensor *t,
-                                   THDoubleTensor *src);
-void THZRealTensor_newFloat(THZRealTensor *r_, THFloatTensor *t,
-                                  THFloatTensor *src);
 ]])
 
 local ok, C = pcall(ffi.load, 'torch_oss_THZ')
