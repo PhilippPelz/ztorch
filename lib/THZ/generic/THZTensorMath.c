@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+# include <complex.h>
 
 #ifndef THZ_GENERIC_FILE
 #define THZ_GENERIC_FILE "generic/THZTensorMath.c"
@@ -289,9 +290,8 @@ void THZTensor_(cadd)(THZTensor *r_, THZTensor *t, real value, THZTensor *src)
   }
 }
 
-void THZTensor_(polar)(THZTensor *r_, THFloatTensor *abso, THFloatTensor *angle)
+THZ_API void THZTensor_(polar)(THZTensor *r_, THTensor *abso, THTensor *angle)
 {
-  THZTensor_(resizeAs)(r_, abso);
   if (THZTensor_(isContiguous)(r_) && THTensor_(isContiguous)(abso) && THTensor_(isContiguous)(angle) && THZTensor_(nElement)(r_) == THTensor_(nElement)(angle)) {
       realscalar *tp = THTensor_(data)(abso);
       realscalar *sp = THTensor_(data)(angle);
@@ -300,9 +300,9 @@ void THZTensor_(polar)(THZTensor *r_, THFloatTensor *abso, THFloatTensor *angle)
       long i;
       #pragma omp parallel for if(sz > THZ_OMP_OVERHEAD_THZRESHOLD) private(i)
       for (i=0; i<sz; i++)
-        rp[i] = tp[i] * cos(sp[i]) + tp[i] * sin(sp[i]) * _Imaginary_I;
+        rp[i] = tp[i] * cos(sp[i]) + tp[i] * sin(sp[i]) * I;
   } else {
-      TH_TENSOR_APPLY3(real, r_, realscalar, abso, realscalar, angle, *r__data = *abso_data * cos(*angle_data) + *abso_data * sin(*angle_data) * _Imaginary_I;);
+      TH_TENSOR_APPLY3(real, r_, realscalar, abso, realscalar, angle, *r__data = *abso_data * cos(*angle_data) + *abso_data * sin(*angle_data) * I;);
   }
   //*out = ccx(*abs*cos(*arg),*abs*sin(*arg));
 }

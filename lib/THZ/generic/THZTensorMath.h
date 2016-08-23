@@ -34,7 +34,7 @@ THZ_API void THZTensor_(div)(THZTensor *r_, THZTensor *t, real value);
 
 THZ_API void THZTensor_(cadd)(THZTensor *r_, THZTensor *t, real value, THZTensor *src);
 THZ_API void THZTensor_(cmul)(THZTensor *r_, THZTensor *t, THZTensor *src);
-THZ_API void THZTensor_(polar)(THZTensor *r_, THFloatTensor *abso, THFloatTensor *angle);
+THZ_API void THZTensor_(polar)(THZTensor *r_, THTensor *abso, THTensor *angle);
 THZ_API void THZTensor_(cdiv)(THZTensor *r_, THZTensor *t, THZTensor *src);
 
 THZ_API void THZTensor_(addcmul)(THZTensor *r_, THZTensor *t, real value, THZTensor *src1, THZTensor *src2);

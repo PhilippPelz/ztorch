@@ -33,7 +33,7 @@ for _,Real in ipairs{'Float', 'Double'} do
    local THZTensor_cat = C[THZTensor .. '_cat']
    local THZTensor_cdiv = C[THZTensor .. '_cdiv']
    local THZTensor_cmul = C[THZTensor .. '_cmul']
-   local THZTensor_polar = C[THZTensor .. '_polar']
+  --  local THZTensor_polar = C[THZTensor .. '_polar']
    local THZTensor_conv2Dcmul = C[THZTensor .. '_conv2Dcmul']
    local THZTensor_conv2Dmul = C[THZTensor .. '_conv2Dmul']
    local THZTensor_conv2Dmv = C[THZTensor .. '_conv2Dmv']
@@ -993,43 +993,43 @@ for _,Real in ipairs{'Float', 'Double'} do
          end
    }
 
-   ZTensor.polar = argcheck{
-      nonamed=true,
-      {name="dst", type=typename},
-      {name="src1", type='torch.FloatTensor'},
-      {name="src2", type='torch.FloatTensor'},
-      call =
-         function(dst, src1, src2)
-            THZTensor_polar(dst, src1, src2)
-            return dst
-         end
-   }
-
-   ZTensor.polar = argcheck{
-      nonamed=true,
-      {name="dst", type=typename},
-      {name="src1", type='number'},
-      {name="src2", type='torch.FloatTensor'},
-      call =
-         function(dst, src1, src2)
-            local src1T = src2:clone():fill(src2)
-            THZTensor_polar(dst, src1T, src2)
-            return dst
-         end
-   }
-
-   ZTensor.polar = argcheck{
-      nonamed=true,
-      {name="dst", type=typename},
-      {name="src1", type='torch.FloatTensor'},
-      {name="src2", type='number'},
-      call =
-         function(dst, src1, src2)
-            local src2T = src1:clone():fill(src2)
-            THZTensor_polar(dst, src1, src2T)
-            return dst
-         end
-   }
+  --  ZTensor.polar = argcheck{
+  --     nonamed=true,
+  --     {name="dst", type=typename},
+  --     {name="src1", type='torch.FloatTensor'},
+  --     {name="src2", type='torch.FloatTensor'},
+  --     call =
+  --        function(dst, src1, src2)
+  --           THZTensor_polar(dst, src1, src2)
+  --           return dst
+  --        end
+  --  }
+   --
+  --  ZTensor.polar = argcheck{
+  --     nonamed=true,
+  --     {name="dst", type=typename},
+  --     {name="src1", type='number'},
+  --     {name="src2", type='torch.FloatTensor'},
+  --     call =
+  --        function(dst, src1, src2)
+  --           local src1T = src2:clone():fill(src2)
+  --           THZTensor_polar(dst, src1T, src2)
+  --           return dst
+  --        end
+  --  }
+   --
+  --  ZTensor.polar = argcheck{
+  --     nonamed=true,
+  --     {name="dst", type=typename},
+  --     {name="src1", type='torch.FloatTensor'},
+  --     {name="src2", type='number'},
+  --     call =
+  --        function(dst, src1, src2)
+  --           local src2T = src1:clone():fill(src2)
+  --           THZTensor_polar(dst, src1, src2T)
+  --           return dst
+  --        end
+  --  }
 
    ZTensor.div = argcheck{
       nonamed=true,
@@ -2081,6 +2081,20 @@ for _,Real in ipairs{'Float', 'Double'} do
             size[#size+1] = 2
             local size2 = torch.LongStorage(size)
             local f = Tensor.new(size2):random()
+            src:copy(f)
+            return src
+         end
+   }
+   ZTensor.randn = argcheck{
+      nonamed=true,
+      name = "random",
+      {name="src", type=typename},
+      call =
+         function(src)
+            local size = src:size():totable()
+            size[#size+1] = 2
+            local size2 = torch.LongStorage(size)
+            local f = torch.randn(size2)
             src:copy(f)
             return src
          end
